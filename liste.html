@@ -1,0 +1,57 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script type="text/javascript">
+var current_user = 1;
+
+function addToLeihliste(filmNr)
+{
+	var jqxhr = $.ajax( "ajax.php?action=add&type=mysql&filmNr="+filmNr+"&benutzer="+current_user )
+		.done(function(data) {
+		alert( "success: "  + data);
+		})
+		.fail(function() {
+		alert( "error" );
+		});
+
+	jqxhr = $.ajax( "ajax.php?action=add&type=gsheet&filmNr="+filmNr+"&benutzer="+current_user )
+		.done(function(data) {}).fail(function() { alert( "error" ); });
+}
+
+function removeFromLeihliste(filmNr)
+{
+	var jqxhr = $.ajax( "ajax.php?action=remove&type=mysql&filmNr="+filmNr+"&benutzer="+current_user )
+		.done(function(data) {
+		alert( "success: "  + data);
+		})
+		.fail(function() {
+		alert( "error" );
+		});
+
+	jqxhr = $.ajax( "ajax.php?action=remove&type=gsheet&filmNr="+filmNr+"&benutzer="+current_user )
+		.done(function(data) {}).fail(function() { alert( "error" ); });
+
+}
+
+$(function () 
+{
+	$('.poster').on( 'click', '.plus', function() {  addToLeihliste($(this).parent().data('filmnr')); $(this).removeClass('plus').addClass('minus');  });
+	$('.poster').on( 'click', '.minus', function() {  removeFromLeihliste($(this).parent().data('filmnr')); $(this).removeClass('minus').addClass('plus'); });
+	$('.poster').hover(function() { $(this).find('.icon').animate({ bottom: 10}, 50, function() {})}, function() { $(this).find('.icon').animate({ bottom: -30}, 50, function() {})});
+
+});
+</script>
+
+
+<style>
+.poster {float:left; position: relative;overflow: hidden}
+.plus {position: absolute; bottom:-30px; right:20px; width: 30px; height: 30px; background: url(plus.png); cursor: pointer}
+.minus {position: absolute; bottom:-30px; right:20px; width: 30px; height: 30px; background: url(minus.png); cursor: pointer}
+
+</style>
+
+<div> 
+
+<div class="poster" data-filmnr="2" ><img src="http://ia.media-imdb.com/images/M/MV5BMTAyMjQ3OTAxMzNeQTJeQWpwZ15BbWU4MDU0NzA1MzAx._V1_SX214_.jpg" /><div class="icon plus"></div></div>
+<div class="poster" data-filmnr="3" ><img src="http://ia.media-imdb.com/images/M/MV5BMTAyMjQ3OTAxMzNeQTJeQWpwZ15BbWU4MDU0NzA1MzAx._V1_SX214_.jpg" /><div class="icon plus"></div></div>
+<div class="poster" data-filmnr="4" ><img src="http://ia.media-imdb.com/images/M/MV5BMTAyMjQ3OTAxMzNeQTJeQWpwZ15BbWU4MDU0NzA1MzAx._V1_SX214_.jpg" /><div class="icon plus"></div></div>
+
+</div>

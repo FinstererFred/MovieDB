@@ -1,0 +1,166 @@
+<link rel="stylesheet" href="css/demo.css"/>
+<link rel="stylesheet" href="css/shCore.css"/>
+<link rel="stylesheet" href="css/shThemeRDark.css"/>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.flippy.min.js"></script>
+<script type="text/javascript" src="js/shCore.js"></script>
+<script type="text/javascript" src="js/shBrushJScript.js"></script>
+<script type="text/javascript" src="js/shBrushXml.js"></script>
+<script type="text/javascript" src="js/demo.js"></script>
+
+<style>
+.mov { float: left; width: 200px;z-index: 1}
+.mov .poster {height: 300px; overflow: hidden; position: relative;}
+.mov .poster img { width: 200px;}
+.mov .poster .rating { position: absolute; top:5px; left:5px; background: #ff900e; color:white;width: 25px; text-align: center; padding: 3px}
+.mov .name { height: 55px;margin-top:5px;padding-left:2px;}
+.mov .update { background: url('update.png') no-repeat grey; padding:10px; font-size: 50px;height: 280px; color:#cdcdcd;text-shadow: 2px 1px 7px #000;line-height: 60px}
+.plus {position: absolute; bottom:-30px; right:20px; width: 30px; height: 30px; background: url(plus.png); cursor: pointer}
+.minus {position: absolute; bottom:-30px; right:20px; width: 30px; height: 30px; background: url(minus.png); cursor: pointer}
+
+.row { position: relative;margin:0px auto;width: 90%}
+.leihliste { width: 330px; position: absolute; left:-300px;position: fixed; z-index: 2; top:10px;}
+.leihliste .liste { width: 298px; height:100px; background: black; border:1px solid grey; left:0px; position: absolute;}
+.leihliste .icon { width: 30px; height:30px; background: grey; position: absolute;right:0px; cursor: pointer}
+</style>
+<script>
+
+var googleResp;
+var start = 20;
+var abstand = 4;
+var movies = [];
+var current_user = 1;
+var docUrl =  "load.php?benutzer="+current_user;
+
+$(function() 
+{
+	var jqxhr = $.getJSON( docUrl )
+	.done(function(data) {
+		googleResp = data;
+		writeInital();
+
+		$('.poster').on( 'click', '.plus', function() {  addToLeihliste($(this).parent().data('filmnr')); $(this).removeClass('plus').addClass('minus');  });
+		$('.poster').on( 'click', '.minus', function() {  removeFromLeihliste($(this).parent().data('filmnr')); $(this).removeClass('minus').addClass('plus'); });
+		$('.poster').hover(function() { $(this).find('.icon').animate({ bottom: 10}, 50, function() {})}, function() { $(this).find('.icon').animate({ bottom: -30}, 50, function() {})});
+
+	})
+	.fail(function() {
+		console.log( "error" );
+	});
+
+	var out = false;
+	
+	getLeihliste();
+
+	$('.leihliste .icon').on('click', function() { 
+		if(!out)
+		{
+			$('.leihliste').animate( {left:0}, 500, function() {});
+			out = true;
+		}
+		else
+		{
+			$('.leihliste').animate( {left:-300}, 500, function() {});
+			out = false;
+		}
+	});
+	
+
+
+});
+
+function getLeihliste()
+{
+	var jqxhr = $.getJSON( 'ajax.php?action=leihliste&benutzer='+current_user )
+	.done(function(data) {
+		var out = '';
+
+		for(var index in data[0])
+		{
+			out += '<div>'+data[0][index].name+'</div>';
+		}
+
+		$('.leihliste .liste').append(out);
+	})
+	.fail(function() {
+		console.log( "error" );
+	});
+}
+
+function writeInital()
+{
+	var outstr = '';
+	var date = googleResp[0].date;
+
+	for(var index in googleResp)
+	{
+		
+		var plus = (googleResp[index].aufliste > 0) ? 'minus' : 'plus';
+
+		outstr += '<div class="mov"><div class="poster" data-filmnr="'+googleResp[index].filmnr+'"><img src="'+googleResp[index].poster+'" /><div class="icon '+plus+'"></div><div class="rating">'+googleResp[index].rating+'</div></div><div class="name">'+googleResp[index].name+'</div></div>';
+		
+		if( typeof googleResp[parseInt(index)+1] === 'undefined' || googleResp[index].date != date )
+		{
+			outstr += '<div class="mov"><div class="update">update '+googleResp[index].date+'</div><div style="height:60px"></div></div>';
+		} 
+		
+		date = googleResp[index].date;
+	}
+	$('#out').html(outstr);
+}
+
+function addToLeihliste(filmNr)
+{
+	var jqxhr = $.ajax( "ajax.php?action=add&type=mysql&filmNr="+filmNr+"&benutzer="+current_user )
+		.done(function(data) {
+		alert( data);
+		})
+		.fail(function() {
+		alert( "error" );
+		});
+
+	jqxhr = $.ajax( "ajax.php?action=add&type=gsheet&filmNr="+filmNr+"&benutzer="+current_user )
+		.done(function(data) {}).fail(function() { alert( "error" ); });
+}
+
+function removeFromLeihliste(filmNr)
+{
+	var jqxhr = $.ajax( "ajax.php?action=remove&type=mysql&filmNr="+filmNr+"&benutzer="+current_user )
+		.done(function(data) {
+		alert( data);
+		})
+		.fail(function() {
+		alert( "error" );
+		});
+
+	jqxhr = $.ajax( "ajax.php?action=remove&type=gsheet&filmNr="+filmNr+"&benutzer="+current_user )
+		.done(function(data) {}).fail(function() { alert( "error" ); });
+
+}
+
+</script>
+
+<div class="row">
+<div class="leihliste">
+	<div class="icon"></div>
+	<div class="liste"><h1>Meine Leihliste</h1></div>
+</div>
+<div id="out"></div>
+<!--
+    <div class="flipbox-container" style="width:200px; margin:0px auto; margin-bottom:10px">
+        <div id="flipbox1" class="flipbox">
+            <span>Hello !</span>
+        </div>
+    </div>
+    
+    <ul id="action-btn">
+        <li><a class="btn" id="btn-left" href="#">Left</a></li>
+        <li><a class="btn" id="btn-right" href="#">Right</a></li>
+        <li><a class="btn" id="btn-top" href="#">Top</a></li>
+        <li><a class="btn" id="btn-bottom" href="#">Bottom</a></li>
+        <li><a class="btn" id="btn-reverse" href="#">Revert</a></li>
+        <br class="clear"/>
+    </ul>
+
+    -->
+</div>
