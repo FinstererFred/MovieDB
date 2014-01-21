@@ -4,6 +4,38 @@ require_once 'Zend/Loader.php';
 require_once 'db.class.php';
 require_once 'credentials.php';
 
+/*
+$url = 'http://example.com/image.php';
+$img = '/my/folder/flower.gif';
+file_put_contents($img, file_get_contents($url));
+Else use cURL:
+*/
+
+/*
+$sql = "select * from filme";
+$stmt = $db->prepare($sql);
+$stmt->execute();
+
+while($temp = $stmt->fetch(PDO::FETCH_ASSOC))
+{
+
+  $ch = curl_init($temp['poster']);
+  $fp = fopen('poster/'.$temp['id'].'.jpg', 'wb');
+  curl_setopt($ch, CURLOPT_FILE, $fp);
+  curl_setopt($ch, CURLOPT_HEADER, 0);
+  curl_exec($ch);
+  curl_close($ch);
+  fclose($fp);
+  echo 'insert: '.$temp['id']."<br/>";
+  flush();
+  ob_flush();
+
+}
+exit;
+*/
+
+
+
 Zend_Loader::loadClass('Zend_Gdata');
 Zend_Loader::loadClass('Zend_Gdata_AuthSub');
 Zend_Loader::loadClass('Zend_Gdata_ClientLogin');
@@ -155,10 +187,15 @@ foreach($cellFeed as $cellEntry) {
   $val = $cellEntry->cell->getText();
   echo "$row, $col = $val</br>";
 }
+
 exit;
 $updatedCell = $spreadsheetService->updateCell(3,
                                                2,
                                                'Hello from PHP!',
                                                $spreadsheetsKey,
                                                $worksheetId);
+
+/*
+
+*/
 ?>

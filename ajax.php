@@ -59,4 +59,14 @@ if($action == 'leihliste')
 	echo json_encode($out);
 }
 
+if($action == 'angeschaut')
+{
+	$sql = "UPDATE film_leihliste SET angeschaut = 1 where usernr = :usernr and filmnr = :filmnr";
+	$stmt = $db->prepare($sql);
+	$stmt->bindParam('usernr', $benutzer, PDO::PARAM_INT);
+	$stmt->bindParam('filmnr',$filmNr,PDO::PARAM_INT);
+	$stmt->execute();
+	echo json_encode('ok');
+}
+
 ?>

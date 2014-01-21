@@ -13,15 +13,24 @@
 .mov .poster {height: 300px; overflow: hidden; position: relative;}
 .mov .poster img { width: 200px;}
 .mov .poster .rating { position: absolute; top:5px; left:5px; background: #ff900e; color:white;width: 25px; text-align: center; padding: 3px}
+.mov .poster .ang_icon { background: url('angeschaut_g.png') no-repeat; width: 103px; height:104px; position: absolute; right: -6px; top:-6px;}
 .mov .name { height: 55px;margin-top:5px;padding-left:2px;}
+
 .mov .update { background: url('update.png') no-repeat grey; padding:10px; font-size: 50px;height: 280px; color:#cdcdcd;text-shadow: 2px 1px 7px #000;line-height: 60px}
 .plus {position: absolute; bottom:-30px; right:20px; width: 30px; height: 30px; background: url(plus.png); cursor: pointer}
 .minus {position: absolute; bottom:-30px; right:20px; width: 30px; height: 30px; background: url(minus.png); cursor: pointer}
 
 .row { position: relative;margin:0px auto;width: 90%}
-.leihliste { width: 330px; position: absolute; left:-300px;position: fixed; z-index: 2; top:10px;}
-.leihliste .liste { width: 298px; height:100px; background: black; border:1px solid grey; left:0px; position: absolute;}
+.leihliste { width: 350px; position: absolute; left:-320px;position: fixed; z-index: 2; top:10px;}
+.leihliste .liste { width: 298px; background: black; border:1px solid grey; left:0px;padding:10px; line-height: 25px}
+.leihliste h1 { font-size: 20px}
+
 .leihliste .icon { width: 30px; height:30px; background: grey; position: absolute;right:0px; cursor: pointer}
+.leihliste .liste .kopier .ang_icon { background: url('angeschaut_n.png') no-repeat; width: 15px; height:15px; position: absolute; right: 0px; top:3px;}
+.leihliste .liste .kopier .del {width: 30px; height:30px; position: absolute; right: 30px;top:3px;}
+.leihliste .liste .kopier { position: relative;}
+.leihliste .angeschaut { width: 298px; background: black; border:1px solid grey; left:0px;padding:10px; margin-top: 10px; line-height: 25px}
+
 </style>
 <script>
 
@@ -41,6 +50,8 @@ $(function()
 
 		$('.poster').on( 'click', '.plus', function() {  addToLeihliste($(this).parent().data('filmnr')); $(this).removeClass('plus').addClass('minus');  });
 		$('.poster').on( 'click', '.minus', function() {  removeFromLeihliste($(this).parent().data('filmnr')); $(this).removeClass('minus').addClass('plus'); });
+
+		
 		$('.poster').hover(function() { $(this).find('.icon').animate({ bottom: 10}, 50, function() {})}, function() { $(this).find('.icon').animate({ bottom: -30}, 50, function() {})});
 
 	})
@@ -60,7 +71,7 @@ $(function()
 		}
 		else
 		{
-			$('.leihliste').animate( {left:-300}, 500, function() {});
+			$('.leihliste').animate( {left:-320}, 500, function() {});
 			out = false;
 		}
 	});
@@ -77,10 +88,21 @@ function getLeihliste()
 
 		for(var index in data[0])
 		{
-			out += '<div>'+data[0][index].name+'</div>';
+				
+			if(data[0][index].angeschaut == '1')
+			{
+				$('.leihliste .angeschaut').append('<div class="angItem" data-filmnr="'+data[0][index].id+'">'+data[0][index].name+'</div>');			
+			}
+			else
+			{
+				$('.leihliste .liste').append('<div class="kopier" data-filmnr="'+data[0][index].id+'">'+data[0][index].name+' <div class="del"></div><div class="ang_icon" title="angeschaut"></div></div>');
+			}
 		}
 
-		$('.leihliste .liste').append(out);
+		//$('.leihliste .liste').append(out);
+
+		$('.leihliste .liste').on( 'click', '.ang_icon', function() {  addToWatchlist($(this).parent().data('filmnr')); });
+
 	})
 	.fail(function() {
 		console.log( "error" );
@@ -97,12 +119,18 @@ function writeInital()
 		
 		var plus = (googleResp[index].aufliste > 0) ? 'minus' : 'plus';
 
-		outstr += '<div class="mov"><div class="poster" data-filmnr="'+googleResp[index].filmnr+'"><img src="'+googleResp[index].poster+'" /><div class="icon '+plus+'"></div><div class="rating">'+googleResp[index].rating+'</div></div><div class="name">'+googleResp[index].name+'</div></div>';
+		var angeschaut = '<div class="ang_icon" title="angeschaut"></div>';
+
+		if(googleResp[index].angeschaut != '1') angeschaut = '';
+
+		outstr += '<div class="mov"><div class="poster" data-filmnr="'+googleResp[index].filmnr+'"><img src="poster/'+googleResp[index].filmnr+'.jpg" /><div class="icon '+plus+'"></div><div class="rating">'+googleResp[index].rating+'</div>'+angeschaut+'</div><div class="name">'+googleResp[index].name+'</div></div>';
 		
+		/*
 		if( typeof googleResp[parseInt(index)+1] === 'undefined' || googleResp[index].date != date )
 		{
 			outstr += '<div class="mov"><div class="update">update '+googleResp[index].date+'</div><div style="height:60px"></div></div>';
 		} 
+		*/
 		
 		date = googleResp[index].date;
 	}
@@ -113,7 +141,9 @@ function addToLeihliste(filmNr)
 {
 	var jqxhr = $.ajax( "ajax.php?action=add&type=mysql&filmNr="+filmNr+"&benutzer="+current_user )
 		.done(function(data) {
-		alert( data);
+			var name = $('.poster[data-filmnr='+filmNr+']').parent().find('.name').text();
+			$('.leihliste .liste').append('<div class="kopier" data-filmnr="'+filmNr+'">'+name+' <div class="del"></div><div class="ang_icon"></div></div></div>');
+			alert(data);
 		})
 		.fail(function() {
 		alert( "error" );
@@ -123,10 +153,26 @@ function addToLeihliste(filmNr)
 		.done(function(data) {}).fail(function() { alert( "error" ); });
 }
 
+function addToWatchlist(filmNr)
+{
+	var jqxhr = $.ajax( "ajax.php?action=angeschaut&type=mysql&filmNr="+filmNr+"&benutzer="+current_user )
+		.done(function(data) {
+		
+			var name = $('.leihliste .kopier[data-filmnr='+filmNr+']').text();
+			$('.leihliste .kopier[data-filmnr='+filmNr+']').remove();
+			$('.angeschaut').append('<div class="angItem" data-filmnr="'+filmNr+'">'+name+'</div>');
+			
+		})
+		.fail(function() {
+		alert( "error" );
+		});
+}
+
 function removeFromLeihliste(filmNr)
 {
 	var jqxhr = $.ajax( "ajax.php?action=remove&type=mysql&filmNr="+filmNr+"&benutzer="+current_user )
 		.done(function(data) {
+		$('.leihliste .kopier[data-filmnr='+filmNr+']').remove();
 		alert( data);
 		})
 		.fail(function() {
@@ -143,7 +189,8 @@ function removeFromLeihliste(filmNr)
 <div class="row">
 <div class="leihliste">
 	<div class="icon"></div>
-	<div class="liste"><h1>Meine Leihliste</h1></div>
+	<div class="liste"><h1>Meine Kopierliste</h1></div>
+	<div class="angeschaut"><h1>Angeschaut</h1></div>
 </div>
 <div id="out"></div>
 <!--
