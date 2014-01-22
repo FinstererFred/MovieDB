@@ -9,9 +9,9 @@ $url = 'http://example.com/image.php';
 $img = '/my/folder/flower.gif';
 file_put_contents($img, file_get_contents($url));
 Else use cURL:
-*/
 
-/*
+
+
 $sql = "select * from filme";
 $stmt = $db->prepare($sql);
 $stmt->execute();
@@ -32,9 +32,8 @@ while($temp = $stmt->fetch(PDO::FETCH_ASSOC))
 
 }
 exit;
+
 */
-
-
 
 Zend_Loader::loadClass('Zend_Gdata');
 Zend_Loader::loadClass('Zend_Gdata_AuthSub');
@@ -72,7 +71,7 @@ foreach($feed->entries as $entry) {
     echo $worksheetId.'</br>';
 }
 $worksheetId = 'od6';
-
+exit;
 
 $query = new Zend_Gdata_Spreadsheets_CellQuery();
 $query->setSpreadsheetKey($spreadsheetsKey);

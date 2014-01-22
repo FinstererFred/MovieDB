@@ -25,8 +25,8 @@
 .leihliste .liste { width: 298px; background: black; border:1px solid grey; left:0px;padding:10px; line-height: 25px}
 .leihliste h1 { font-size: 20px}
 
-.leihliste .icon { width: 30px; height:30px; background: grey; position: absolute;right:0px; cursor: pointer}
-.leihliste .liste .kopier .ang_icon { background: url('angeschaut_n.png') no-repeat; width: 15px; height:15px; position: absolute; right: 0px; top:3px;}
+.leihliste .icon { width: 30px; height:30px; background: url(button.png) no-repeat; position: absolute;right:0px; cursor: pointer}
+.leihliste .liste .kopier .ang_icon { background: url('angeschaut_n.png') no-repeat; width: 15px; height:15px; position: absolute; right: 0px; top:3px; cursor: pointer}
 .leihliste .liste .kopier .del {width: 30px; height:30px; position: absolute; right: 30px;top:3px;}
 .leihliste .liste .kopier { position: relative;}
 .leihliste .angeschaut { width: 298px; background: black; border:1px solid grey; left:0px;padding:10px; margin-top: 10px; line-height: 25px}
@@ -121,9 +121,11 @@ function writeInital()
 
 		var angeschaut = '<div class="ang_icon" title="angeschaut"></div>';
 
-		if(googleResp[index].angeschaut != '1') angeschaut = '';
+		var icon = '<div class="icon '+ plus +'"></div>';
 
-		outstr += '<div class="mov"><div class="poster" data-filmnr="'+googleResp[index].filmnr+'"><img src="poster/'+googleResp[index].filmnr+'.jpg" /><div class="icon '+plus+'"></div><div class="rating">'+googleResp[index].rating+'</div>'+angeschaut+'</div><div class="name">'+googleResp[index].name+'</div></div>';
+		if(googleResp[index].angeschaut != '1') angeschaut = ''; else icon = '';
+
+		outstr += '<div class="mov"><div class="poster" data-filmnr="'+googleResp[index].filmnr+'"><img src="poster/'+googleResp[index].filmnr+'.jpg" />'+icon+'<div class="rating">'+googleResp[index].rating+'</div>'+angeschaut+'</div><div class="name">'+googleResp[index].name+'</div></div>';
 		
 		/*
 		if( typeof googleResp[parseInt(index)+1] === 'undefined' || googleResp[index].date != date )
@@ -161,7 +163,8 @@ function addToWatchlist(filmNr)
 			var name = $('.leihliste .kopier[data-filmnr='+filmNr+']').text();
 			$('.leihliste .kopier[data-filmnr='+filmNr+']').remove();
 			$('.angeschaut').append('<div class="angItem" data-filmnr="'+filmNr+'">'+name+'</div>');
-			
+			$('.mov .poster[data-filmnr='+filmNr+']').prepend('<div class="ang_icon" title="angeschaut"></div>');
+			$('.mov .poster[data-filmnr='+filmNr+'] .icon').remove();
 		})
 		.fail(function() {
 		alert( "error" );

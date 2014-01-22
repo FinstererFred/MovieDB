@@ -1,6 +1,9 @@
 <?
-include('db.class.php');
 error_reporting(E_ALL ^ E_NOTICE);
+include('db.class.php');
+require_once 'Zend/Loader.php';
+require_once 'credentials.php';
+
 $action = $_GET['action'];
 $type = $_GET['type'];
 $filmNr = (int)$_GET['filmNr'];
