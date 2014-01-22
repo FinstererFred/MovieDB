@@ -3,7 +3,7 @@ error_reporting(E_ALL ^ E_NOTICE ^ E_STRICT);
 require_once 'Zend/Loader.php';
 require_once 'db.class.php';
 require_once 'credentials.php';
-
+error_reporting(E_ALL ^ E_NOTICE ^ E_STRICT);
 /*
 $url = 'http://example.com/image.php';
 $img = '/my/folder/flower.gif';
@@ -71,7 +71,6 @@ foreach($feed->entries as $entry) {
     echo $worksheetId.'</br>';
 }
 $worksheetId = 'od6';
-exit;
 
 $query = new Zend_Gdata_Spreadsheets_CellQuery();
 $query->setSpreadsheetKey($spreadsheetsKey);
@@ -121,7 +120,8 @@ foreach ($result as $key => $res)
 {
   if( !in_array($res, $bestehende) && $key >= 6)
   {
-    if($res == '.') { echo 'fertig'; break; }
+    if($res != '.') 
+    { 
 
     echo 'insert: '.$res."<br/>";
     flush();
@@ -137,7 +137,7 @@ foreach ($result as $key => $res)
     $stmt->bindParam(':poster', $film['poster'], PDO::PARAM_STR);
     $stmt->bindParam(':rating', $film['rating'], PDO::PARAM_STR);
     $stmt->execute();
-
+    }
     $cnt++;
   }
 } 
@@ -165,10 +165,11 @@ function parse($id)
   
   // name
   $match = '';
-  preg_match('/<h1>.*?<\/small>/s', $contents, $match);
-  $name = explode('>', $match[0]);
+  preg_match('/:title\' content=".*"/s', $contents, $match);
+  $name = explode('content="', $match[0]);
+  $name = explode('(', $name[1]);
 
-  return array('name' => trim(strip_tags($name[1])), 'poster' => $poster, 'plot' => trim($plot[0]), 'rating' => $rating[1]);
+  return array('name' => trim(strip_tags($name[0])), 'poster' => $poster, 'plot' => trim($plot[0]), 'rating' => $rating[1]);
 }
 
 
