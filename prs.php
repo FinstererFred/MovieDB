@@ -128,7 +128,7 @@ foreach ($result as $key => $res)
     ob_flush();
     $film = parse($res);
 
-    $sql = 'insert into filme (id, tt,name,plot,poster,rating) values (:id, :tt,:name,:plot,:poster,:rating)';
+    $sql = 'insert into filme (id, tt,name,plot,poster,rating, jahr) values (:id, :tt,:name,:plot,:poster,:rating, :jahr)';
     $stmt=$db->prepare($sql);
     $stmt->bindParam(':id', $result2[$key], PDO::PARAM_INT);
     $stmt->bindParam(':tt', $res, PDO::PARAM_STR);
@@ -136,6 +136,7 @@ foreach ($result as $key => $res)
     $stmt->bindParam(':plot', $film['plot'], PDO::PARAM_STR);
     $stmt->bindParam(':poster', $film['poster'], PDO::PARAM_STR);
     $stmt->bindParam(':rating', $film['rating'], PDO::PARAM_STR);
+    $stmt->bindParam(':jahr', $film['jahr'], PDO::PARAM_INT);
     $stmt->execute();
     }
     $cnt++;
@@ -168,8 +169,9 @@ function parse($id)
   preg_match('/:title\' content=".*"/s', $contents, $match);
   $name = explode('content="', $match[0]);
   $name = explode('(', $name[1]);
+  $jahr = explode(')', $name[1]);
 
-  return array('name' => trim(strip_tags($name[0])), 'poster' => $poster, 'plot' => trim($plot[0]), 'rating' => $rating[1]);
+  return array('name' => trim(strip_tags($name[0])), 'poster' => $poster, 'plot' => trim($plot[0]), 'rating' => $rating[1], 'jahr' => $jahr[0]);
 }
 
 

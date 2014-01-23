@@ -1,0 +1,4 @@
+AuthType Basic
+AuthName "MovieDB"
+AuthUserFile D:/git/MovieDB/.htpasswd
+require valid-user
