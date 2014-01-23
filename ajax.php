@@ -1,14 +1,15 @@
 <?
-error_reporting(E_ALL ^ E_NOTICE);
-include('db.class.php');
-require_once 'Zend/Loader.php';
-require_once 'credentials.php';
+
+require_once('db.class.php');
+require_once('strap.php');
+error_reporting(E_ALL ^ E_NOTICE ^ E_STRICT);
 
 $action = $_GET['action'];
 $type = $_GET['type'];
 $filmNr = (int)$_GET['filmNr'];
 $benutzer = (int)$_GET['benutzer'];
 $datum = date("Y-m-d H:i:s",time());
+
 
 if($action == 'add' )
 {
@@ -20,12 +21,13 @@ if($action == 'add' )
 		$stmt->bindParam('datum', $datum,PDO::PARAM_STR);
 		$stmt->bindParam('filmnr',$filmNr,PDO::PARAM_INT);
 		$stmt->execute();
+		
 		echo json_encode('Film zur Leihliste hinzugefuegt');
 	}
 
 	if($type == 'gsheet')
 	{
-		// todo: hier google sheet abgleichen
+		updateUserList('copy', $benutzer, $filmNr);
 	}
 }
 
@@ -38,12 +40,13 @@ if($action == 'remove')
 		$stmt->bindParam('usernr',$benutzer,PDO::PARAM_INT);
 		$stmt->bindParam('filmnr',$filmNr,PDO::PARAM_INT);
 		$stmt->execute();
+		
 		echo json_encode('Film von der Leihliste geloescht');
 	}
 
 	if($type == 'gsheet')
 	{
-		// todo: hier google sheet abgleichen
+		updateUserList('delete', $benutzer, $filmNr);
 	}
 }
 
@@ -64,12 +67,20 @@ if($action == 'leihliste')
 
 if($action == 'angeschaut')
 {
-	$sql = "UPDATE film_leihliste SET angeschaut = 1 where usernr = :usernr and filmnr = :filmnr";
-	$stmt = $db->prepare($sql);
-	$stmt->bindParam('usernr', $benutzer, PDO::PARAM_INT);
-	$stmt->bindParam('filmnr',$filmNr,PDO::PARAM_INT);
-	$stmt->execute();
-	echo json_encode('ok');
+	if($type == 'mysql')
+	{
+		$sql = "UPDATE film_leihliste SET angeschaut = 1 where usernr = :usernr and filmnr = :filmnr";
+		$stmt = $db->prepare($sql);
+		$stmt->bindParam('usernr', $benutzer, PDO::PARAM_INT);
+		$stmt->bindParam('filmnr',$filmNr,PDO::PARAM_INT);
+		$stmt->execute();
+		echo json_encode('ok');
+	}
+	
+	if($type == 'gsheet')
+	{
+		updateUserList('watched', $benutzer, $filmNr);
+	}
 }
 
 ?>
