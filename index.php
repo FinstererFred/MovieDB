@@ -96,7 +96,7 @@ function initFilmListe()
 		    	
 		    	if($(this).data('side') != 'backside')
 		        {
-		          $(this).flip({ direction: 'lr', speed: 500, color: '#ffffff',content : '<div class="plot">'+findPlot($(this).data('filmnr'))+'</div>' });
+		          $(this).flip({ direction: 'rl', speed: 350, color: '#ffffff',content : '<div class="plot">'+findPlot($(this).data('filmnr'))+'</div>' });
 		          $(this).data('side', 'backside');
 		        }
 		        else
