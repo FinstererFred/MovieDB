@@ -1,3 +1,18 @@
+<?
+	require_once('db.class.php');
+	$benutzer = "%".$_SERVER['REMOTE_USER']."%";
+	$sql = 'SELECT * from film_benutzer fb where fb.kurz like :usernr';
+	$stmt = $db->prepare($sql);
+	$stmt->bindParam('usernr',$benutzer,PDO::PARAM_STR);
+	$stmt->execute();
+	$result = $stmt->fetch(PDO::FETCH_ASSOC);
+	$benutzer = $result['id'];
+
+	/*
+	http://aspirine.org/htpasswd_en.html
+	*/
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,12 +31,12 @@ body {background: black; font-family: Arial; font-size: 13px; color: white;}
 .mov .poster .ang_icon { background: url('angeschaut_g.png') no-repeat; width: 103px; height:104px; position: absolute; right: -6px; top:-6px;}
 .mov .poster .kopier_icon { background: url('kopierliste.png') no-repeat; width: 103px; height:104px; position: absolute; left: -7px; bottom:-7px;}
 .mov .name { height: 55px;margin-top:5px;padding:5px;}
-
+#out { padding-top:20px; }
 .mov .update { background: url('update.png') no-repeat grey; padding:10px; font-size: 50px;height: 280px; color:#cdcdcd;text-shadow: 2px 1px 7px #000;line-height: 60px}
 .plus {position: absolute; bottom:-30px; right:20px; width: 30px; height: 30px; background: url(plus.png); cursor: pointer}
 .minus {position: absolute; bottom:-30px; right:20px; width: 30px; height: 30px; background: url(minus.png); cursor: pointer}
 .plot {color: black; padding: 10px; line-height: 20px; cursor: pointer}
-.row { position: relative;margin:0px auto;width: 92%}
+.row { position: relative;margin:0px auto;width: 92%; }
 .leihliste { width: 350px; position: absolute; left:-320px;position: fixed; z-index: 2; top:10px;}
 .leihliste .liste { width: 298px; background: black; border:1px solid grey; left:0px;padding:10px; line-height: 25px; height: 300px; overflow-y: scroll;}
 .leihliste h1 { font-size: 20px}
@@ -36,12 +51,12 @@ body {background: black; font-family: Arial; font-size: 13px; color: white;}
 <script>
 
 var googleResp;
-var current_user = 10;
+var current_user = <?=$benutzer?>;
 
 $(function() 
 {
-	initFilmListe();
 
+	initFilmListe();
 	getLeihliste();
 
 	var out = false;
@@ -60,10 +75,6 @@ $(function()
 	});
 });
 
-function doLogin()
-{
-	
-}
 
 function initFilmListe()
 {
@@ -85,7 +96,7 @@ function initFilmListe()
 		    	
 		    	if($(this).data('side') != 'backside')
 		        {
-		          $(this).flip({ direction: 'lr', speed: 500, color: '#ffffff',content : '<div class="plot">'+findPlot($(this).data('filmnr'))+'</div>' });
+		          $(this).flip({ direction: 'rl', speed: 350, color: '#ffffff',content : '<div class="plot">'+findPlot($(this).data('filmnr'))+'</div>' });
 		          $(this).data('side', 'backside');
 		        }
 		        else
@@ -130,8 +141,6 @@ function getLeihliste()
 				$('.leihliste .liste').append('<div class="kopier" data-filmnr="'+data[0][index].id+'">'+data[0][index].name+' <div class="del"></div><div class="ang_icon" title="angeschaut"></div></div>');
 			}
 		}
-
-		//$('.leihliste .liste').append(out);
 
 		$('.leihliste .liste').on( 'click', '.ang_icon', function() {  addToWatchlist($(this).parent().data('filmnr')); });
 
@@ -195,7 +204,7 @@ function addToLeihliste(filmNr)
 			var name = $('.poster[data-filmnr='+filmNr+']').parent().find('.name').text();
 			$('.leihliste .liste').append('<div class="kopier" data-filmnr="'+filmNr+'">'+name+' <div class="del"></div><div class="ang_icon"></div></div></div>');
 			$('.mov .poster[data-filmnr='+filmNr+']').prepend('<div class="kopier_icon" title="angeschaut"></div>');
-			//alert(data);
+
 		})
 		.fail(function() {
 		alert( "error" );
@@ -251,7 +260,7 @@ function removeFromLeihliste(filmNr)
 	<div class="liste"><h1>Meine Kopierliste</h1></div>
 	<div class="angeschaut"><h1>Angeschaut</h1></div>
 </div>
-<div id="loader" style="display:none"></div>
+<div id="loader"></div>
 <div id="out"></div>
 </div>
 </body>

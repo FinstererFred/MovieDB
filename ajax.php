@@ -1,13 +1,12 @@
 <?
-
+error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
 require_once('db.class.php');
 require_once('strap.php');
-error_reporting(E_ALL ^ E_NOTICE ^ E_STRICT);
 
 $action = $_GET['action'];
 $type = $_GET['type'];
 $filmNr = (int)$_GET['filmNr'];
-$benutzer = (int)$_GET['benutzer'];
+$benutzer = $_GET['benutzer'];
 $datum = date("Y-m-d H:i:s",time());
 
 
@@ -81,6 +80,17 @@ if($action == 'angeschaut')
 	{
 		updateUserList('watched', $benutzer, $filmNr);
 	}
+}
+
+if($action == 'benutzer')
+{
+	$benutzer = "%".$benutzer."%";
+	$sql = 'SELECT * from film_benutzer fb where fb.kurz like :usernr';
+	$stmt = $db->prepare($sql);
+	$stmt->bindParam('usernr',$benutzer,PDO::PARAM_STR);
+	$stmt->execute();
+	$result = $stmt->fetch(PDO::FETCH_ASSOC);
+	echo json_encode($result['id']);
 }
 
 ?>

@@ -1,7 +1,9 @@
 <?
+error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
+
 require_once 'Zend/Loader.php';
 require_once 'credentials.php';
-error_reporting(E_ALL ^ E_NOTICE ^ ~E_STRICT);
+
 Zend_Loader::loadClass('Zend_Gdata');
 Zend_Loader::loadClass('Zend_Gdata_AuthSub');
 Zend_Loader::loadClass('Zend_Gdata_ClientLogin');
